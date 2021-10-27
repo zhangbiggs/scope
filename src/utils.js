@@ -24,7 +24,7 @@ function parseData(data) {
     });
     return csvData
 }
-export function readCSV(input) {
+export function readCSV(input,fn) {
     if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.readAsBinaryString(input.files[0]);
@@ -32,7 +32,7 @@ export function readCSV(input) {
             obj_csv.size = e.total;
             obj_csv.dataFile = e.target.result
             var result = parseData(obj_csv.dataFile)
-            console.log(result)
+            fn(result)
         }
     }
 }

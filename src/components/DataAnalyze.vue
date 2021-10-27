@@ -12,7 +12,7 @@
           id="image_uploads"
           name="image_uploads"
           accept=".csv"
-          @change="readCSV"
+          @change="uploadCSV"
         />
       </el-form-item>
       <el-form-item label="时间范围选择">
@@ -32,7 +32,7 @@
     <div class="table-wrap" id="tablewrap">
       <el-table
         ref="Table"
-        :data="updateCSV"
+        :data="tableData"
         highlight-current-row
         stripe
         :height="tableHeight"
@@ -104,6 +104,7 @@ export default {
     fileList: [],
     tableHeight: 250,
     value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
+    CSVData:[],
     tableData: [
       {
         day: "2020-13-32",
@@ -354,13 +355,17 @@ export default {
     this.$nextTick(this.resizeTableHeight);
     window.addEventListener("resize", this.resizeTableHeight);
     const input = document.querySelector("input");
-    input.addEventListener("change", this.updateCSV);
+    input.addEventListener("change", this.upload);
   },
   beforeRouteUpdate() {
     console.log("beforeRouteUpdate");
   },
+  // beforeRouteLeave(){
+  //   console.log('beforeRouteLeave')
+  // },
+
   methods: {
-    updateCSV() {
+    uploadCSV() {
       const input = document.querySelector("input");
 
       const curFiles = input.files;
@@ -370,7 +375,10 @@ export default {
         for (const file of curFiles) {
           this.text = file.name;
         }
-        readCSV(input)
+        readCSV(input,(data) => {
+          this.tableData = Object.freeze(data.slice(1))
+          console.log(this.tableData)
+        })
       }
     },
     onSubmit() {
@@ -385,7 +393,6 @@ export default {
           this.tableHeight = clientHeight > 300 ? clientHeight : 300;
         });
       }
-      // }, 100);
     },
   },
 };
