@@ -18,7 +18,7 @@
         <v-text-field  dense type="number" outlined v-model="StopBits" label="StopBits" required ></v-text-field>
       </v-col>
       <v-col cols="12" md="4">
-        <v-btn color="teal" block elevation="3" >连接设备串口</v-btn>
+        <v-btn color="secondary" block elevation="3" >连接设备串口</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -26,14 +26,14 @@
         <v-text-field v-model="ParmamStr" dense label="设置命令"></v-text-field>
       </v-col>
       <v-col cols="12" md="6">
-        <v-btn block  rounded color="cyan">发送命令</v-btn>
+        <v-btn block rounded color="green">发送命令</v-btn>
       </v-col>
     </v-row>
     <h3>设置命令</h3>
     <sub>(点击复制命令)</sub>
     <v-chip-group column>
-      <v-chip @click="copyParamStr('[{RD-HW-VER}]')">读取硬件信息</v-chip>
-      <v-chip @click="copyParamStr('[{RD-FW-VER}]')">PC读取固件信息</v-chip>
+      <v-chip color="orange" @click="copyParamStr('[{RD-HW-VER}]')">读取硬件信息</v-chip>
+      <v-chip color="orange" @click="copyParamStr('[{RD-FW-VER}]')">PC读取固件信息</v-chip>
       <v-chip @click="copyParamStr('[{WR-HW-LCD_LCD硬件版本号}]')"
         >设置LCD硬件版本号: "[{WR-HW-LCD_LCD硬件版本号}]"</v-chip
       >
