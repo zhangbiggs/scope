@@ -2,12 +2,29 @@
   <v-container class="mycontainer">
     <v-row>
       <v-col cols="12" md="4">
-        <v-select dense outlined v-model="serialId" :items="serialItems" label="串口" required ></v-select>
+        <v-select
+          dense
+          outlined
+          
+          prepend-inner-icon="mdi-backup-restore"
+          v-model="serialId"
+          :items="serialItems"
+          label="串口"
+          required
+          @click:prepend-inner="getSerial"
+        ></v-select>
       </v-col>
       <v-col cols="12" md="4">
-        <v-select dense outlined v-model="BaudRate" :items="BaudRateItems" label="BaudRate" required ></v-select>
+        <v-select
+          dense
+          outlined
+          v-model="BaudRate"
+          :items="BaudRateItems"
+          label="BaudRate"
+          required
+        ></v-select>
       </v-col>
-      <v-col cols="12" md="4">
+      <!-- <v-col cols="12" md="4">
         <v-select dense outlined v-model="Parity" :items="ParityItems" label="Parity" required ></v-select>
       </v-col>
       <v-col cols="12" md="4">
@@ -16,9 +33,10 @@
 
       <v-col cols="12" md="4">
         <v-text-field  dense type="number" outlined v-model="StopBits" label="StopBits" required ></v-text-field>
-      </v-col>
+      </v-col> -->
       <v-col cols="12" md="4">
-        <v-btn color="secondary" block elevation="3" >连接设备串口</v-btn>
+        <v-btn color="secondary" block elevation="3" @click="connectDevice">连接设备串口</v-btn>
+        <v-btn color="secondary" block elevation="3" @click="closeDevice">断开设备串口</v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -26,15 +44,19 @@
         <v-text-field v-model="ParmamStr" dense label="设置命令"></v-text-field>
       </v-col>
       <v-col cols="12" md="6">
-        <v-btn block rounded color="green">发送命令</v-btn>
+        <v-btn @click="sendCommand" block rounded color="green">发送命令</v-btn>
       </v-col>
     </v-row>
     <h3>设置命令</h3>
     <sub>(点击复制命令)</sub>
     <v-chip-group column>
-      <v-chip color="orange" @click="copyParamStr('[{RD-HW-VER}]')">读取硬件信息</v-chip>
-      <v-chip color="orange" @click="copyParamStr('[{RD-FW-VER}]')">PC读取固件信息</v-chip>
-      <v-chip @click="copyParamStr('[{WR-HW-LCD_LCD硬件版本号}]')"
+      <v-chip color="orange" @click="copyParamStr('[{RD-HW-VER}]')"
+        >读取硬件信息</v-chip
+      >
+      <v-chip color="orange" @click="copyParamStr('[{RD-FW-VER}]')"
+        >PC读取固件信息</v-chip
+      >
+      <!-- <v-chip @click="copyParamStr('[{WR-HW-LCD_LCD硬件版本号}]')"
         >设置LCD硬件版本号: "[{WR-HW-LCD_LCD硬件版本号}]"</v-chip
       >
       <v-chip @click="copyParamStr('[{WR-FW-DSP_DSP软件版本号}]')"
@@ -51,12 +73,12 @@
       >
       <v-chip @click="copyParamStr('[{WR-BATTERY-VER_电池型号}]')"
         >设置电池型号: "[{WR-BATTERY-VER_电池型号}]"</v-chip
-      >
+      > -->
+      <!-- <v-chip @click="copyParamStr('[{WR-SHIP-DATA_年-月-日}]')"
+        >设置出厂日期: "[{WR-SHIP-DATA_年-月-日}]"</v-chip
+      > -->
       <v-chip @click="copyParamStr('[{WR-DIST-FACTOR_K1,K2,K3,K4}]')"
         >设置距离补偿系数: "[{WR-DIST-FACTOR_K1,K2,K3,K4}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-SHIP-DATA_年-月-日}]')"
-        >设置出厂日期: "[{WR-SHIP-DATA_年-月-日}]"</v-chip
       >
       <v-chip @click="copyParamStr('[{WR-GAIN50_增益初始值}]')"
         >设置频率的增益初始值: "[{WR-GAIN50_增益初始值}]"//50HZ</v-chip
@@ -89,17 +111,19 @@
         >设置校正日期命令: "[{WR-SET-DATE_时-分-秒}}]"</v-chip
       >
     </v-chip-group>
-    <!-- <v-snackbar :timeout="1000" v-model="snackbar"> 命令复制成功 </v-snackbar> -->
+    <!-- <v-snackbar :timeout="1000" v-model="snackbar"> {{snackbar_text}} </v-snackbar> -->
   </v-container>
 </template>
 
 <script>
+import EventBus from '../eventbus'
 export default {
   name: "HelloWorld",
 
   data: () => ({
     snackbar: false,
-    serialItems: ["COM1", "COM2", "COM3"],
+    snackbar_text:"",
+    serialItems: [],
     serialId: "",
     BaudRateItems: [9600, 19200, 38400, 115200],
     DataBits: 8,
@@ -120,9 +144,39 @@ export default {
     Parity: "NoParity",
     ParmamStr: "",
   }),
+  mounted(){
+    EventBus.$on("message", (msg) => {
+      // A发送来的消息
+      console.log('EventBus message')
+      console.log(msg)
+      // this.msg = msg;
+    });
+  },
   methods: {
+    getSerial() {
+      console.log('getSerial')
+      window.getSerialList().then((res) => {
+        if (res) {
+          this.serialItems = res
+        } else {
+          this.serialItems = []
+          this.serialId = ''
+          this.snackbar = true
+          this.snackbar_text = '获取串口列表失败'
+        }
+      });
+    },
+    closeDevice(){
+      window.closeSerial()
+    },
+    connectDevice(){
+      window.setSerialPort(this.serialId,this.BaudRate)
+    },
+    sendCommand(){
+      window.sendParam(this.ParmamStr)
+    },
     copyParamStr(ParmamStr) {
-      navigator.clipboard.writeText(ParmamStr);
+      // window.navigator.clipboard.writeText(ParmamStr);
       this.ParmamStr = ParmamStr;
       // this.snackbar = true;
     },

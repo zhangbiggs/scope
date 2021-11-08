@@ -7,7 +7,7 @@ import VueRouter from 'vue-router'
 import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify'
-
+import './eventbus'
 Vue.use(VueRouter)
 Vue.use(Element, { size: 'small', zIndex: 3000 });// console.log(router);
 // Vue.component(Table.name, Table);

@@ -5,11 +5,11 @@
         <label
           class="el-button el-button--primary el-button--small"
           for="image_uploads"
-          >请选择数据文件(csv)</label
+          >{{ text }}</label
         >
         <input
-          type="file"
           id="image_uploads"
+          type="file"
           name="image_uploads"
           accept=".csv"
           @change="uploadCSV"
@@ -26,71 +26,36 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+        <!-- <el-button type="primary" @click="onSubmit">查询</el-button> -->
+        <div
+          class="el-button el-button--primary el-button--small"
+          @click="onSubmit"
+        >
+          查询
+        </div>
       </el-form-item>
     </el-form>
-    <div class="table-wrap" id="tablewrap">
-      <el-table
-        ref="Table"
-        :data="tableData"
-        highlight-current-row
-        stripe
-        :height="tableHeight"
-      >
-        <el-table-column type="index" width="50" fixed> </el-table-column>
-        <el-table-column prop="WorkMode" fixed width="150" label="时间">
-          <template slot-scope="scope">
-            {{ scope.row.day + scope.row.time }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="WorkMode" label="模式"></el-table-column>
-        <el-table-column
-          prop="GenModeFrequency"
-          label="模式频率"
-        ></el-table-column>
-        <el-table-column prop="Bargraph" label="条形图"></el-table-column>
-        <el-table-column
-          prop="SensitivityLevel"
-          label="灵敏度等级"
-        ></el-table-column>
-        <el-table-column
-          prop="SensitivityLevel"
-          label="灵敏度等级"
-        ></el-table-column>
-        <el-table-column
-          prop="MeasurementType"
-          label="测量类型"
-        ></el-table-column>
-        <el-table-column prop="SwingWarning" label="摆动警告"></el-table-column>
-        <el-table-column prop="Overload" label="过载"></el-table-column>
-        <el-table-column
-          prop="BladeAngleSign"
-          label="B叶片角度"
-        ></el-table-column>
-        <el-table-column prop="BladeAngle" label="叶片角度"></el-table-column>
-        <el-table-column
-          prop="PaddleAngleSign"
-          label="P叶片角度"
-        ></el-table-column>
-        <el-table-column prop="PaddleAngle" label="叶片角度"></el-table-column>
-        <el-table-column prop="SelfTest" label="自检"></el-table-column>
-        <el-table-column
-          prop="N_SIndicator"
-          label="n/s指示器"
-        ></el-table-column>
-        <el-table-column
-          prop="E_W_Indicator"
-          label="e/w指示器"
-        ></el-table-column>
-        <el-table-column
-          prop="AlarmZoneDepth"
-          label="报警区深度"
-        ></el-table-column>
-        <el-table-column
-          prop="AlarmZoneActive"
-          label="报警区激活"
-        ></el-table-column>
-      </el-table>
+    <div class="tableFixHead">
+      <table>
+        <thead>
+          <tr>
+            <th class="headerTh">#</th>
+            <th v-for="(thItem, i) in tableHeadData" :key="i">{{ thItem }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, i) in tableData" :key="i">
+            <th class="headerTh">{{ i }}</th>
+            <td v-for="(tdItem, tdi) in item" :key="tdi">{{ tdItem }}</td>
+          </tr>
+        </tbody>
+        <tfoot class="myfoot">
+          <tr>
+            <th scope="row">Totals</th>
+            <td>21,000</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </v-container>
 </template>
@@ -101,10 +66,34 @@ export default {
   name: "DataAnalyze",
 
   data: () => ({
+    text: "请选择数据文件(csv)",
     fileList: [],
     tableHeight: 250,
     value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
-    CSVData:[],
+    CSVData: [],
+    tableHeadData: [
+      "day",
+      "time",
+      "WorkMode",
+      "Bargraph",
+      "GenModeFrequency",
+      "SensitivityLevel",
+      "MeasurementType",
+      "Depth",
+      "SwingWarning",
+      "Overload",
+      "BladeAngleSign",
+      "BladeAngle",
+      "PaddleAngleSign",
+      "PaddleAngle",
+      "SelfTest",
+      "CurLat",
+      "N_SIndicator",
+      "CurLong",
+      "E_W_Indicator",
+      "AlarmZoneDepth",
+      "AlarmZoneActive",
+    ],
     tableData: [
       {
         day: "2020-13-32",
@@ -352,17 +341,9 @@ export default {
     ],
   }),
   mounted() {
-    this.$nextTick(this.resizeTableHeight);
-    window.addEventListener("resize", this.resizeTableHeight);
     const input = document.querySelector("input");
     input.addEventListener("change", this.upload);
   },
-  beforeRouteUpdate() {
-    console.log("beforeRouteUpdate");
-  },
-  // beforeRouteLeave(){
-  //   console.log('beforeRouteLeave')
-  // },
 
   methods: {
     uploadCSV() {
@@ -375,24 +356,14 @@ export default {
         for (const file of curFiles) {
           this.text = file.name;
         }
-        readCSV(input,(data) => {
-          this.tableData = Object.freeze(data.slice(1))
-          console.log(this.tableData)
-        })
+        readCSV(input, (data) => {
+          this.tableHeadData = data[0];
+          this.tableData = Object.freeze(data);
+        });
       }
     },
     onSubmit() {
       console.log("onSubmit");
-    },
-    resizeTableHeight() {
-      const Table = this.$refs["Table"];
-      if (Table) {
-        Table.$nextTick(() => {
-          const clientHeight = Table.$el.parentElement.clientHeight;
-          console.log(clientHeight);
-          this.tableHeight = clientHeight > 300 ? clientHeight : 300;
-        });
-      }
     },
   },
 };
@@ -413,6 +384,39 @@ export default {
 }
 #image_uploads {
   display: none;
+}
+.tableFixHead {
+  overflow-y: auto;
+  height: 500px;
+}
+
+.tableFixHead thead th {
+  position: sticky;
+  top: 0;
+  z-index: 51;
+}
+.myfoot {
+  position: sticky;
+  bottom: 0;
+  z-index: 51;
+  background: #eee;
+}
+.headerTh {
+  left: 0;
+  position: sticky;
+  z-index: 50;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+}
+th {
+  background: #eee;
 }
 </style>
   

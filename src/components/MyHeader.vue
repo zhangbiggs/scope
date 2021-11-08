@@ -9,16 +9,33 @@
       <p><span>固件信息:</span>软件DSP版本号,LCD版本</p>
     </div>
     <div class="upload">
-      <v-btn color="secondary" elevation="2">上传设备数据</v-btn>
+      <v-btn color="secondary" elevation="2" @click="sendCommand"
+        >上传设备数据</v-btn
+      >
     </div>
   </v-app-bar>
 </template>
 
 <script>
+// import EventBus from "../eventbus";
+
 export default {
   name: "Header",
 
   data: () => ({}),
+  // mounted() {
+  //   EventBus.$on("message", (msg) => {
+  //     // A发送来的消息
+  //     console.log("EventBus message");
+  //     console.log(msg);
+  //     // this.msg = msg;
+  //   });
+  // },
+  methods: {
+    sendCommand() {
+      window.sendParam("[{RD-RECORD}]");
+    },
+  },
 };
 </script>
 
@@ -27,18 +44,18 @@ export default {
   display: flex;
   flex-direction: column;
   white-space: nowrap;
-  .logo{
+  .logo {
     margin: 0 16px;
   }
-  .device{
-    flex:1 0 400px;
+  .device {
+    flex: 1 0 400px;
     padding: 0 16px;
     border-right: 1px solid #000;
     border-left: 1px solid #000;
     text-overflow: hidden;
-    p{
+    p {
       margin: 0;
-      white-space: nowrap
+      white-space: nowrap;
     }
   }
   .upload {
