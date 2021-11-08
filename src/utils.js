@@ -12,6 +12,25 @@ export function throttle(fn, wait) {
         }
     }
 }
+/** 
+* @desc 函数防抖 
+* @param func 回调函数 
+* @param wait 延迟执行毫秒数 
+*/ 
+export function debounce(func, wait) { 
+    let timeout; 
+    return function () { 
+        let context = this; 
+        let args = arguments; 
+        timeout?clearTimeout(timeout):null; 
+        timeout = setTimeout(() => { 
+            func.apply(context, args) 
+            
+        }, wait);
+     } 
+ } 
+//  document.body.onclick= debounce(function () { console.log(this) },1000)
+
 
 var obj_csv = {
     size: 0,

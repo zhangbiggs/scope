@@ -26,7 +26,6 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <!-- <el-button type="primary" @click="onSubmit">查询</el-button> -->
         <div
           class="el-button el-button--primary el-button--small"
           @click="onSubmit"
@@ -61,7 +60,10 @@
 </template>
 
 <script>
-import { readCSV } from "../utils";
+import { readCSV,debounce } from "../utils";
+import EventBus from "../eventbus";
+var tableData = [];
+
 export default {
   name: "DataAnalyze",
 
@@ -71,281 +73,24 @@ export default {
     tableHeight: 250,
     value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
     CSVData: [],
-    tableHeadData: [
-      "day",
-      "time",
-      "WorkMode",
-      "Bargraph",
-      "GenModeFrequency",
-      "SensitivityLevel",
-      "MeasurementType",
-      "Depth",
-      "SwingWarning",
-      "Overload",
-      "BladeAngleSign",
-      "BladeAngle",
-      "PaddleAngleSign",
-      "PaddleAngle",
-      "SelfTest",
-      "CurLat",
-      "N_SIndicator",
-      "CurLong",
-      "E_W_Indicator",
-      "AlarmZoneDepth",
-      "AlarmZoneActive",
-    ],
-    tableData: [
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        WorkMode: 1, // 模式(0-40)
-        Bargraph: 1, // 条形图(0-40)
-        GenModeFrequency: 1, // 模式频率(1/2/3/4/5)
-        SensitivityLevel: 1, // 灵敏度等级(增益)
-        MeasurementType: 1, // 测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, // 摆动警告(暂无)
-        Overload: 1, // 过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-      {
-        day: "2020-13-32",
-        time: "20-13-32",
-        mode: 1, //条形图(0-40)
-        Bargraph: 1, //条形图(0-40)
-        SensitivityLevel: 1, //灵敏度等级(增益)
-        MeasurementType: 1, //测量类型(待定)
-        Depth: 1, //深度
-        SwingWarning: 1, //摆动警告(暂无)
-        Overload: 1, //过载(暂无)
-        BladeAngleSign: 1, //B叶片角度 标志(待定)
-        BladeAngle: 1, //叶片角度
-        PaddleAngleSign: 1, //P叶片角度 标志
-        PaddleAngle: 1, //叶片角度
-        SelfTest: 1, //自检(P/G？待定)
-        CurLat: 1, //纬度
-        N_SIndicator: 1, //n/s指示器
-        CurLong: 1, //经度
-        E_W_Indicator: 1, //e/w指示器
-        AlarmZoneDepth: 1, //报警区深度(待定)
-        AlarmZoneActive: 1, //报警区激活(待定)
-      },
-    ],
+    tableHeadData: [ "年-月-日", "时-分-秒", "模式", "频率", "条形图", "灵敏度等级", "测量类型", "深度", "摆动警告", "过载", "B叶片角度标志", "叶片角度", "P叶片角度标志", "叶片角度", "自检", "纬度", "N/S指示器", "经度", "E/W指示器", "报警区深度", "报警区激活" ],
+    tableData: [],
   }),
   mounted() {
     const input = document.querySelector("input");
     input.addEventListener("change", this.upload);
+    const updateDate = debounce(this.showData,200)
+    EventBus.$on("RD-RECORD", (msg) => {
+      tableData.push(msg.split(","));
+      updateDate()
+    });
   },
 
   methods: {
+    showData(){
+      this.tableData = Object.freeze(tableData);
+      tableData = []
+    },
     uploadCSV() {
       const input = document.querySelector("input");
 
@@ -412,7 +157,7 @@ table {
 }
 th,
 td {
-  padding: 8px 16px;
+  padding: 2px 4px;
   border: 1px solid #ccc;
 }
 th {

@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import EventBus from '../eventbus'
+// import EventBus from '../eventbus'
 export default {
   name: "HelloWorld",
 
@@ -145,12 +145,18 @@ export default {
     ParmamStr: "",
   }),
   mounted(){
-    EventBus.$on("message", (msg) => {
-      // A发送来的消息
-      console.log('EventBus message')
-      console.log(msg)
-      // this.msg = msg;
-    });
+    // EventBus.$on("RD-RECORD", (msg) => {
+    //   // A发送来的消息
+    //   // console.log('EventBus message')
+    //   console.log(msg)
+    //   // this.msg = msg;
+    // });
+    // EventBus.$on("RD-HW-VER", (msg) => {
+    //   // A发送来的消息
+    //   console.log('RD-HW-VER')
+    //   console.log(msg)
+    //   // this.msg = msg;
+    // });
   },
   methods: {
     getSerial() {
