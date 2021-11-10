@@ -9,6 +9,7 @@ const originalPush = VueRouter.prototype.push
 const router = new VueRouter({
   routes: [
     // the following object is a route record
+    // redirec 
     {
       path: '/DeviceSetting',
       component: DeviceSetting,

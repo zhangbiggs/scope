@@ -20,7 +20,7 @@
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content> -->
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
               <!-- </v-list-item-content> -->
             </v-list-item>
           </v-list-item-group>
@@ -30,19 +30,28 @@
         <router-view></router-view>
       </keep-alive>
     </v-main>
+    <v-snackbar :timeout="1000" v-model="snackbar">
+      {{ snackbar_text }}
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
 import MyHeader from "./components/MyHeader.vue";
-// import { throttle } from "./utils";
+import EventBus from "./eventbus";
 
 export default {
-  name: "HelloWorld",
+  name: "APP",
   components: {
     MyHeader,
   },
+  provide: {
+    connect: EventBus.connect,
+  },
   data: () => ({
+    connected: false,
+    snackbar: false,
+    snackbar_text: "",
     items: [
       { title: "Device Setting", icon: "mdi-devices", name: "DeviceSetting" },
       { title: "Data Analyze ", icon: "mdi-dna", name: "DataAnalyze" },
@@ -54,7 +63,17 @@ export default {
     ],
   }),
   mounted() {
-    this.$router.push({ name: "DeviceSetting" });
+    EventBus.$on("connect", (bool) => {
+      this.connected = bool;
+      if (!bool) {
+        EventBus.$emit("RD-HW-VER", null);
+        EventBus.$emit("RD-FW-VER", null);
+      }
+    });
+    EventBus.$on("message", (msg) => {
+      this.snackbar = true;
+      this.snackbar_text = msg;
+    });
   },
   methods: {
     goPage(item) {
@@ -64,11 +83,3 @@ export default {
 };
 </script>
 
-<style scoped>
-/* .mycontainer {
-  display: flex;
-  flex-direction: row;
-} */
-.active {
-}
-</style>

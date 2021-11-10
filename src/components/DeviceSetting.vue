@@ -5,13 +5,11 @@
         <v-select
           dense
           outlined
-          
           prepend-inner-icon="mdi-backup-restore"
           v-model="serialId"
           :items="serialItems"
+          :disabled="connected"
           label="串口"
-          required
-          @click:prepend-inner="getSerial"
         ></v-select>
       </v-col>
       <v-col cols="12" md="4">
@@ -19,9 +17,9 @@
           dense
           outlined
           v-model="BaudRate"
+          :disabled="connected"
           :items="BaudRateItems"
           label="BaudRate"
-          required
         ></v-select>
       </v-col>
       <!-- <v-col cols="12" md="4">
@@ -35,8 +33,15 @@
         <v-text-field  dense type="number" outlined v-model="StopBits" label="StopBits" required ></v-text-field>
       </v-col> -->
       <v-col cols="12" md="4">
-        <v-btn color="secondary" block elevation="3" @click="connectDevice">连接设备串口</v-btn>
-        <v-btn color="secondary" block elevation="3" @click="closeDevice">断开设备串口</v-btn>
+        <v-btn
+          color="secondary"
+          :loading="loading"
+          block
+          elevation="3"
+          @click="handleButton"
+          >{{ connected ? "断开设备串口" : "连接设备串口" }}</v-btn
+        >
+        <!-- <v-btn color="secondary" :loading="loading" block elevation="3" @click="closeDevice" >断开设备串口</v-btn > -->
       </v-col>
     </v-row>
     <v-row>
@@ -44,7 +49,14 @@
         <v-text-field v-model="ParmamStr" dense label="设置命令"></v-text-field>
       </v-col>
       <v-col cols="12" md="6">
-        <v-btn @click="sendCommand" block rounded color="green">发送命令</v-btn>
+        <v-btn
+          :disabled="!connected"
+          @click="sendCommand"
+          block
+          rounded
+          color="green"
+          >发送命令</v-btn
+        >
       </v-col>
     </v-row>
     <h3>设置命令</h3>
@@ -56,27 +68,13 @@
       <v-chip color="orange" @click="copyParamStr('[{RD-FW-VER}]')"
         >PC读取固件信息</v-chip
       >
-      <!-- <v-chip @click="copyParamStr('[{WR-HW-LCD_LCD硬件版本号}]')"
-        >设置LCD硬件版本号: "[{WR-HW-LCD_LCD硬件版本号}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-FW-DSP_DSP软件版本号}]')"
-        >设置DSP软件版本号: "[{WR-FW-DSP_DSP软件版本号}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-FW-LCD_LCD软件版本号}]')"
-        >设置LCD软件版本号: "[{WR-FW-LCD_LCD软件版本号}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-HW-DSP_DSP版本号}]')"
-        >设置硬件DSP版本号: "[{WR-HW-DSP_DSP版本号}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-HW-CAP_采集板版本号}]')"
-        >设置硬件采集板版本号: "[{WR-HW-CAP_采集板版本号}]"</v-chip
-      >
-      <v-chip @click="copyParamStr('[{WR-BATTERY-VER_电池型号}]')"
-        >设置电池型号: "[{WR-BATTERY-VER_电池型号}]"</v-chip
-      > -->
-      <!-- <v-chip @click="copyParamStr('[{WR-SHIP-DATA_年-月-日}]')"
-        >设置出厂日期: "[{WR-SHIP-DATA_年-月-日}]"</v-chip
-      > -->
+      <!-- <v-chip @click="copyParamStr('[{WR-HW-LCD_LCD硬件版本号}]')" >设置LCD硬件版本号: "[{WR-HW-LCD_LCD硬件版本号}]"</v-chip >
+      <v-chip @click="copyParamStr('[{WR-FW-DSP_DSP软件版本号}]')" >设置DSP软件版本号: "[{WR-FW-DSP_DSP软件版本号}]"</v-chip >
+      <v-chip @click="copyParamStr('[{WR-FW-LCD_LCD软件版本号}]')" >设置LCD软件版本号: "[{WR-FW-LCD_LCD软件版本号}]"</v-chip >
+      <v-chip @click="copyParamStr('[{WR-HW-DSP_DSP版本号}]')" >设置硬件DSP版本号: "[{WR-HW-DSP_DSP版本号}]"</v-chip >
+      <v-chip @click="copyParamStr('[{WR-HW-CAP_采集板版本号}]')" >设置硬件采集板版本号: "[{WR-HW-CAP_采集板版本号}]"</v-chip >
+      <v-chip @click="copyParamStr('[{WR-BATTERY-VER_电池型号}]')" >设置电池型号: "[{WR-BATTERY-VER_电池型号}]"</v-chip > -->
+      <!-- <v-chip @click="copyParamStr('[{WR-SHIP-DATA_年-月-日}]')" >设置出厂日期: "[{WR-SHIP-DATA_年-月-日}]"</v-chip > -->
       <v-chip @click="copyParamStr('[{WR-DIST-FACTOR_K1,K2,K3,K4}]')"
         >设置距离补偿系数: "[{WR-DIST-FACTOR_K1,K2,K3,K4}]"</v-chip
       >
@@ -111,18 +109,20 @@
         >设置校正日期命令: "[{WR-SET-DATE_时-分-秒}}]"</v-chip
       >
     </v-chip-group>
-    <!-- <v-snackbar :timeout="1000" v-model="snackbar"> {{snackbar_text}} </v-snackbar> -->
   </v-container>
 </template>
 
 <script>
-// import EventBus from '../eventbus'
-export default {
-  name: "HelloWorld",
+import EventBus from "../eventbus";
 
+var timeout;
+export default {
+  name: "DeviceSetting",
   data: () => ({
+    connected: false,
+    loading: false,
     snackbar: false,
-    snackbar_text:"",
+    snackbar_text: "",
     serialItems: [],
     serialId: "",
     BaudRateItems: [9600, 19200, 38400, 115200],
@@ -130,62 +130,62 @@ export default {
     StopBits: 1,
     BaudRate: 115200,
     ParityItems: [
-      // NoParity disable parity control (default)
-      "NoParity", //Parity = iota,
-      // OddParity enable odd-parity check
+      "NoParity",
       "OddParity",
-      // EvenParity enable even-parity check
       "EvenParity",
-      // MarkParity enable mark-parity (always 1) check
       "MarkParity",
-      // SpaceParity enable space-parity (always 0) check
       "SpaceParity",
     ],
     Parity: "NoParity",
     ParmamStr: "",
   }),
-  mounted(){
-    // EventBus.$on("RD-RECORD", (msg) => {
-    //   // A发送来的消息
-    //   // console.log('EventBus message')
-    //   console.log(msg)
-    //   // this.msg = msg;
-    // });
-    // EventBus.$on("RD-HW-VER", (msg) => {
-    //   // A发送来的消息
-    //   console.log('RD-HW-VER')
-    //   console.log(msg)
-    //   // this.msg = msg;
-    // });
+  mounted() {
+    this.getSerial();
+    timeout = setInterval(this.getSerial, 5000);
+    EventBus.$on("connect", (bool) => {
+      this.connected = bool;
+    });
   },
   methods: {
     getSerial() {
-      console.log('getSerial')
       window.getSerialList().then((res) => {
         if (res) {
-          this.serialItems = res
+          this.serialItems = res;
         } else {
-          this.serialItems = []
-          this.serialId = ''
-          this.snackbar = true
-          this.snackbar_text = '获取串口列表失败'
+          this.serialItems = [];
+          this.serialId = "";
         }
       });
     },
-    closeDevice(){
-      window.closeSerial()
+    handleButton() {
+      if (this.connected) {
+        this.closeDevice();
+      } else {
+        this.connectDevice();
+      }
     },
-    connectDevice(){
-      window.setSerialPort(this.serialId,this.BaudRate)
+    closeDevice() {
+      window.closeSerial();
     },
-    sendCommand(){
-      window.sendParam(this.ParmamStr)
+    connectDevice() {
+      this.loading = true;
+      window.setSerialPort(this.serialId, this.BaudRate).then(() => {
+        this.loading = false;
+        window.sendParam("[{RD-HW-VER}]");
+        setTimeout(() => {
+          window.sendParam("[{RD-FW-VER}]");
+        }, 200);
+      });
+    },
+    sendCommand() {
+      window.sendParam(this.ParmamStr);
     },
     copyParamStr(ParmamStr) {
-      // window.navigator.clipboard.writeText(ParmamStr);
       this.ParmamStr = ParmamStr;
-      // this.snackbar = true;
     },
+  },
+  destroyed() {
+    clearInterval(timeout);
   },
 };
 </script>

@@ -54,3 +54,25 @@ export function readCSV(input, fn, errorFn) {
     }
 }
 
+// var csvFileData = [
+//     ['Alan Walker', 'Singer'],
+//     ['Cristiano Ronaldo', 'Footballer'],
+//     ['Saina Nehwal', 'Badminton Player'],
+//     ['Arijit Singh', 'Singer'],
+//     ['Terence Lewis', 'Dancer']
+//  ];
+   
+ //create a user-defined function to download CSV file 
+ export function download_csv_file(headerData,bodyData) {
+     var csv = headerData.join(',') + '\n';
+     bodyData.forEach(function(row) {
+             csv += row.join(',');
+             csv += "\n";
+     });
+     var hiddenElement = document.createElement('a');
+     hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+     hiddenElement.target = '_blank';
+     
+     hiddenElement.download = 'scope.csv';
+     hiddenElement.click();
+ }

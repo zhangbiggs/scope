@@ -1,36 +1,39 @@
 <template>
-  <v-app-bar app class="myheader">
+  <v-app-bar app :color="color" class="myheader">
     <div class="logo">
       <sub class="version">CScope tookit(v1.0.0)</sub>
       <h2 class="title">潜龙接收机</h2>
     </div>
     <div class="device">
-      <p><span>硬件信息:</span>硬件DSP版本号,采集板版本号,LCD版本,电池版本号</p>
-      <p><span>固件信息:</span>软件DSP版本号,LCD版本</p>
-    </div>
-    <div class="upload">
-      <v-btn color="secondary" elevation="2" @click="sendCommand"
-        >上传设备数据</v-btn
-      >
+      <p><span>硬件信息:</span>{{ rd_fw_ver }}</p>
+      <p><span>固件信息:</span>{{ rd_hw_ver }}</p>
     </div>
   </v-app-bar>
 </template>
 
 <script>
-// import EventBus from "../eventbus";
+import EventBus from "../eventbus";
 
 export default {
   name: "Header",
 
-  data: () => ({}),
-  // mounted() {
-  //   EventBus.$on("message", (msg) => {
-  //     // A发送来的消息
-  //     console.log("EventBus message");
-  //     console.log(msg);
-  //     // this.msg = msg;
-  //   });
-  // },
+  data: () => ({
+    color: "grey",
+    rd_hw_ver: "",
+    rd_fw_ver: "",
+  }),
+  mounted() {
+    EventBus.$on("connect", (bool) => {
+      // this.connected = bool;
+      !bool ? (this.color = "grey") : (this.color = "green");
+    });
+    EventBus.$on("RD-HW-VER", (msg) => {
+      this.rd_hw_ver = msg;
+    });
+    EventBus.$on("RD-FW-VER", (msg) => {
+      this.rd_fw_ver = msg;
+    });
+  },
   methods: {
     sendCommand() {
       window.sendParam("[{RD-RECORD}]");
