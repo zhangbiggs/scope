@@ -62,7 +62,7 @@ export default {
     text: "请选择数据文件(csv)",
     fileList: [],
     tableHeight: 250,
-    value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
+    value1: [],
     CSVData: [],
     tableHeadData: [
       "年-月-日",

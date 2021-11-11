@@ -18,14 +18,14 @@ export default {
   name: "Header",
 
   data: () => ({
-    color: "grey",
+    color: "white",
     rd_hw_ver: "",
     rd_fw_ver: "",
   }),
   mounted() {
     EventBus.$on("connect", (bool) => {
       // this.connected = bool;
-      !bool ? (this.color = "grey") : (this.color = "green");
+      !bool ? (this.color = "white") : (this.color = "green");
     });
     EventBus.$on("RD-HW-VER", (msg) => {
       this.rd_hw_ver = msg;
