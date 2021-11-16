@@ -20,10 +20,10 @@
       </el-form-item>
     </el-form> -->
     <v-row class="myrow">
-          <v-btn type="secondary" :disabled="connected" :loading="loading" @click="sendCommand" > 设备上传 </v-btn>
-          <label class="mylabel v-btn v-btn--is-elevated v-btn--has-bg theme--light elevation-3 v-size--default secondary" for="csv_uploads" >{{ text }}</label >
+          <v-btn type="secondary" color="secondary" :disabled="connected" :loading="loading" @click="sendCommand" > 设备上传 </v-btn>
+          <label class="mylabel v-btn v-btn--is-elevated v-btn--has-bg theme--light elevation-3 v-size--default indigo" for="csv_uploads" >{{ text }}</label >
           <input id="csv_uploads" type="file" name="csv_uploads" accept=".csv" @change="uploadCSV" />
-          <v-btn class="mylabel" color="secondary" elevation="3" @click="onSave" >保存文件</v-btn >
+          <v-btn class="mylabel" type="secondary" color="pink" elevation="3" @click="onSave" >保存文件</v-btn >
           <v-text-field class="mylabel" label="开始时间" type="date" :max="end" v-model="start"  outlined dense @change="handleChange"></v-text-field>
           <v-text-field label="结束时间" type="date" :min="start" v-model="end"  outlined dense @change="handleChange"></v-text-field>
     </v-row>
@@ -175,8 +175,9 @@ export default {
   height: 100%;
   .myrow {
     flex: 0;
-    margin: 0;
-
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 10px;
   }
   .table-wrap {
     flex: 1;

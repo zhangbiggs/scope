@@ -51,6 +51,7 @@ export default {
     ],
   }),
   mounted() {
+    this.goPage({ title: "设备设置", icon: "mdi-devices", name: "DeviceSetting" })
     EventBus.$on("connect", (bool) => {
       this.connected = bool;
       if (!bool) {

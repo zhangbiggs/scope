@@ -5,7 +5,6 @@
         <v-select
           dense
           outlined
-          prepend-inner-icon="mdi-backup-restore"
           v-model="serialId"
           :items="serialItems"
           :disabled="connected"
@@ -54,7 +53,7 @@
           @click="sendCommand"
           block
           rounded
-          color="green"
+          color="teal"
           >发送命令</v-btn
         >
       </v-col>
