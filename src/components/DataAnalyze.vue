@@ -1,6 +1,6 @@
 <template>
   <v-container class="mycontainer">
-    <el-form :inline="true">
+    <!-- <el-form :inline="true">
       <el-form-item>
         <el-button type="success" :disabled="connected" :loading="loading" @click="sendCommand" > 上传数据 </el-button>
       </el-form-item>
@@ -18,7 +18,15 @@
       <el-form-item>
         <div class="el-button el-button--primary el-button--small" @click="onSave" > 保存 </div>
       </el-form-item>
-    </el-form>
+    </el-form> -->
+    <v-row class="myrow">
+          <v-btn type="secondary" :disabled="connected" :loading="loading" @click="sendCommand" > 设备上传 </v-btn>
+          <label class="mylabel v-btn v-btn--is-elevated v-btn--has-bg theme--light elevation-3 v-size--default secondary" for="csv_uploads" >{{ text }}</label >
+          <input id="csv_uploads" type="file" name="csv_uploads" accept=".csv" @change="uploadCSV" />
+          <v-btn class="mylabel" color="secondary" elevation="3" @click="onSave" >保存文件</v-btn >
+          <v-text-field class="mylabel" label="开始时间" type="date" :max="end" v-model="start"  outlined dense @change="handleChange"></v-text-field>
+          <v-text-field label="结束时间" type="date" :min="start" v-model="end"  outlined dense @change="handleChange"></v-text-field>
+    </v-row>
     <div class="tableFixHead" id="tableFixHead">
       <table>
         <thead>
@@ -31,25 +39,25 @@
         </thead>
         <tbody>
           <tr v-for="(item, i) in tableData" :key="i">
-            <th class="headerTh">{{ i }}</th>
+            <th class="headerTh">{{ i + 1 }}</th>
             <td v-for="(tdItem, tdi) in item" :key="tdi">{{ tdItem }}</td>
           </tr>
         </tbody>
-        <tfoot class="myfoot">
+        <!-- <tfoot class="myfoot">
           <tr>
             <th class="headerTh" scope="row">Totals</th>
             <td colspan="2">21,000</td>
             <td>21,000</td>
             <td>21,000</td>
           </tr>
-        </tfoot>
+        </tfoot> -->
       </table>
     </div>
   </v-container>
 </template>
 
 <script>
-import { readCSV, debounce,download_csv_file } from "../utils";
+import { readCSV, debounce, download_csv_file } from "../utils";
 import EventBus from "../eventbus";
 var tableData = [];
 
@@ -59,9 +67,11 @@ export default {
   data: () => ({
     connected: true,
     loading: false,
-    text: "请选择数据文件(csv)",
+    text: "文件上传",
     fileList: [],
     tableHeight: 250,
+    start:"",
+    end:"",
     value1: [],
     CSVData: [],
     tableHeadData: [
@@ -87,7 +97,6 @@ export default {
       "E/W指示器",
       "报警区深度",
       "报警区激活",
-
     ],
     tableData: [],
   }),
@@ -106,8 +115,8 @@ export default {
   },
 
   methods: {
-    onSave(){
-      download_csv_file(this.tableHeadData, this.tableData)
+    onSave() {
+      download_csv_file(this.tableHeadData, this.tableData);
     },
     resizeHandle() {
       var tableFixHeadel = document.getElementById("tableFixHead");
@@ -119,32 +128,40 @@ export default {
     },
     showData() {
       this.loading = false;
-      this.setTableData(tableData)
+      this.setTableData(tableData);
     },
-    setTableData(data){
+    setTableData(data) {
       // tableData = data
       this.tableData = Object.freeze(data);
-      this.$nextTick(this.resizeHandle)
-      tableData = [];
+      this.$nextTick(this.resizeHandle);
+      tableData = Object.freeze(data);
     },
     uploadCSV() {
       const input = document.querySelector("input");
 
       const curFiles = input.files;
       if (curFiles.length === 0) {
-        this.text = "请选择数据文件(csv)";
+        this.text = "文件上传";
       } else {
         for (const file of curFiles) {
           this.text = file.name;
         }
         readCSV(input, (data) => {
-          this.tableHeadData = data[0];
-          this.setTableData(data)
+          // this.tableHeadData = data[0];
+          this.setTableData(data.slice(1));
         });
       }
     },
-    onSubmit() {
-      console.log("onSubmit");
+    handleChange() {
+      // tableData = this.tableData
+      if (this.start && this.end){
+        var start = new Date(this.start).getTime()
+        var end = new Date(this.end).getTime()
+        this.tableData = tableData.filter(item => {
+          var dateTime = new Date((item[0]+ " " +item[1].replaceAll('-',":"))).getTime()
+          return (dateTime <= end) && (dateTime >= start)
+        })
+      }
     },
   },
 };
@@ -158,6 +175,8 @@ export default {
   height: 100%;
   .myrow {
     flex: 0;
+    margin: 0;
+
   }
   .table-wrap {
     flex: 1;
@@ -183,7 +202,7 @@ export default {
 }
 .headerTh {
   position: sticky;
-  left:0;
+  left: 0;
   z-index: 50;
 }
 .headerTd {
@@ -221,6 +240,9 @@ tr:nth-child(odd) td {
 
 caption {
   padding: 10px;
+}
+.mylabel{
+  margin: 0 10px;
 }
 </style>
   

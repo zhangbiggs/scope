@@ -150,7 +150,7 @@ export default {
     getSerial() {
       window.getSerialList().then((res) => {
         if (res) {
-          this.serialItems = res;
+          this.serialItems = res.map(item => item.path);
         } else {
           this.serialItems = [];
           this.serialId = "";
@@ -174,7 +174,7 @@ export default {
         window.sendParam("[{RD-HW-VER}]");
         setTimeout(() => {
           window.sendParam("[{RD-FW-VER}]");
-        }, 200);
+        }, 1000);
       });
     },
     sendCommand() {

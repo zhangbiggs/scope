@@ -16,12 +16,7 @@
               :key="item.title"
               @click="goPage(item)"
             >
-              <!-- <v-list-item-icon>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content> -->
               <v-list-item-title>{{ item.title }}</v-list-item-title>
-              <!-- </v-list-item-content> -->
             </v-list-item>
           </v-list-item-group>
         </v-list>
@@ -45,21 +40,14 @@ export default {
   components: {
     MyHeader,
   },
-  provide: {
-    connect: EventBus.connect,
-  },
   data: () => ({
     connected: false,
     snackbar: false,
     snackbar_text: "",
     items: [
-      { title: "Device Setting", icon: "mdi-devices", name: "DeviceSetting" },
-      { title: "Data Analyze ", icon: "mdi-dna", name: "DataAnalyze" },
-      {
-        title: "Soft Support ",
-        icon: "mdi-vector-square",
-        name: "SoftSupport",
-      },
+      { title: "设备设置", icon: "mdi-devices", name: "DeviceSetting" },
+      { title: "数据分析", icon: "mdi-dna", name: "DataAnalyze" },
+      // { title: "软件支持", icon: "mdi-vector-square", name: "SoftSupport", },
     ],
   }),
   mounted() {
