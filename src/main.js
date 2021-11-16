@@ -1,7 +1,5 @@
 import Vue from 'vue'
 // import { TableColumn, Table ,DatePicker} from 'element-ui';
-import Element from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
 import VueRouter from 'vue-router'
 
 import App from './App.vue'
@@ -9,7 +7,6 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import './eventbus'
 Vue.use(VueRouter)
-Vue.use(Element, { size: 'small', zIndex: 3000 });// console.log(router);
 // Vue.component(Table.name, Table);
 // Vue.component(TableColumn.name, TableColumn);
 // Vue.component(DatePicker.name, DatePicker);
